@@ -1,0 +1,3 @@
+[workspace]
+members = [ "undersea-lib","undersea-tui"]
+resolver = "3"
