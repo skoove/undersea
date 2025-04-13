@@ -27,6 +27,8 @@
           "rust-analyzer"
         ])
         clang
+
+        openssl # needed by reqwest
         pkg-config
       ];
     };
