@@ -1307,6 +1307,9 @@ dependencies = [
 [[package]]
 name = "undersea-tui"
 version = "0.0.0"
+dependencies = [
+ "undersea-lib",
+]
 
 [[package]]
 name = "unicode-ident"
