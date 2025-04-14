@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 undersea-lib = { path = "../undersea-lib" }
 ratatui = "0.29"
+anyhow = "1.0"

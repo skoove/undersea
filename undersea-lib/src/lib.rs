@@ -3,6 +3,7 @@ use reqwest::get;
 use rss::Channel;
 use std::time::{self, Duration};
 
+/// A podcast, contains the URL, name and a list of [`Episode`]s.
 #[derive(Debug)]
 pub struct Feed {
     url: String,
@@ -10,14 +11,15 @@ pub struct Feed {
     episodes: Vec<Episode>,
 }
 
+/// An espisode, contains the title, url, media url, and some media metadata.
 #[derive(Debug)]
 pub struct Episode {
-    url: String,
     media_url: String,
     title: String,
     date: DateTime<Utc>,
     duration: time::Duration,
     resume_time: time::Duration,
+    finished: bool,
 }
 
 impl Feed {
@@ -27,16 +29,29 @@ impl Feed {
         let mut episodes: Vec<Episode> = Vec::new();
 
         for item in channel.items() {
-            let instant_date = DateTime::parse_from_rfc2822(item.pub_date().unwrap()).unwrap();
+            let date = DateTime::parse_from_rfc2822(item.pub_date().unwrap()).unwrap();
+
+            let media_url = if let Some(enclosure) = item.enclosure() {
+                enclosure.url().to_string()
+            } else {
+                // if there is no enclosure on the item, we just skip it, its *probably* not a podcast episode
+                continue;
+            };
+
+            let title = if let Some(episode_title) = item.title() {
+                episode_title.to_string()
+            } else {
+                url.clone()
+            };
 
             episodes.push(Episode {
-                url: url.clone(),
-                media_url: item.enclosure().unwrap().url().to_string(),
-                title: item.title().unwrap().to_string(),
-                date: instant_date.into(),
+                media_url,
+                title,
+                date: date.into(),
                 // TODO: Implement this
                 duration: Duration::from_secs(0),
                 resume_time: Duration::from_secs(0),
+                finished: false,
             });
         }
 
