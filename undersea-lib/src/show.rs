@@ -6,7 +6,7 @@ use crate::{Episode, FeedError};
 
 /// A podcast, contains the URL, name and a list of [`Episode`]s.
 #[derive(Debug)]
-pub struct Feed {
+pub struct Show {
     pub(crate) url: String,
     pub(crate) name: String,
     pub(crate) episodes: Vec<Episode>,
@@ -14,8 +14,10 @@ pub struct Feed {
     pub(crate) last_upload: DateTime<Utc>,
 }
 
-impl Feed {
-    pub(crate) async fn new(url: String) -> Result<Feed, FeedError> {
+impl Show {
+    pub(crate) async fn new<S: Into<String> + reqwest::IntoUrl + Clone>(
+        url: S,
+    ) -> Result<Show, FeedError> {
         let response = get(url.clone()).await?.bytes().await?;
         let channel = Channel::read_from(&response[..]).unwrap();
         let mut episodes: Vec<Episode> = Vec::new();
@@ -31,10 +33,11 @@ impl Feed {
                 continue;
             };
 
+            let url_copy = url.clone();
             let title = if let Some(episode_title) = item.title() {
                 episode_title.to_string()
             } else {
-                url.clone()
+                url_copy.into()
             };
 
             episodes.push(Episode {
@@ -49,11 +52,16 @@ impl Feed {
         }
 
         Ok(Self {
-            url,
+            url: url.into(),
             name: channel.title,
             episodes,
             last_checked: Utc::now(),
             last_upload: Utc::now(),
         })
+    }
+
+    /// Returns the title of a show
+    pub fn name(&self) -> &str {
+        &self.name
     }
 }
