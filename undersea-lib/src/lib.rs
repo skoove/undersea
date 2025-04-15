@@ -32,6 +32,7 @@ impl Shows {
         S: IntoUrl + Clone + Into<String>,
     {
         self.shows.push(Show::new(url).await?);
+        self.last_change = Utc::now();
         Ok(())
     }
 
@@ -44,6 +45,7 @@ impl Shows {
         for url in urls {
             self.add(url).await?
         }
+        self.last_change = Utc::now();
         Ok(())
     }
 
