@@ -51,13 +51,13 @@ impl Shows {
 
     /// Returns the name of all added shows
     pub fn names(&self) -> Vec<&str> {
-        let mut titles = Vec::new();
+        let mut names = Vec::new();
 
         for show in self.shows.iter() {
-            titles.push(show.name());
+            names.push(show.name());
         }
 
-        titles
+        names
     }
 }
 
