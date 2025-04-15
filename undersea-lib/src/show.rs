@@ -1,5 +1,5 @@
 use chrono::{DateTime, Utc};
-use reqwest::get;
+use reqwest::{IntoUrl, get};
 use rss::Channel;
 
 use crate::{Episode, FeedError};
@@ -15,9 +15,10 @@ pub struct Show {
 }
 
 impl Show {
-    pub(crate) async fn new<S: Into<String> + reqwest::IntoUrl + Clone>(
-        url: S,
-    ) -> Result<Show, FeedError> {
+    pub(crate) async fn new<S>(url: S) -> Result<Show, FeedError>
+    where
+        S: IntoUrl + Clone + Into<String>,
+    {
         let response = get(url.clone()).await?.bytes().await?;
         let channel = Channel::read_from(&response[..]).unwrap();
         let mut episodes: Vec<Episode> = Vec::new();
