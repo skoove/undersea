@@ -1,3 +1,5 @@
+use core::time;
+
 use chrono::{DateTime, Utc};
 use reqwest::{IntoUrl, get};
 use rss::Channel;
@@ -47,7 +49,7 @@ impl Show {
                 date: date.into(),
                 // TODO: Implement this
                 duration: None,
-                resume_time: None,
+                resume_time: time::Duration::from_secs(0),
                 finished: false,
             });
         }
