@@ -1,3 +1,6 @@
-fn main() -> std::io::Result<()> {
+use anyhow::Result;
+
+#[tokio::main]
+async fn main() -> Result<()> {
     Ok(())
 }
