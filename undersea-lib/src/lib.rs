@@ -16,16 +16,18 @@ pub struct Shows {
     pub(crate) last_change: DateTime<Utc>,
 }
 
-impl Shows {
+impl Default for Shows {
     /// Create a new [`Shows`] struct, this should only be done if there were none to
     /// read from file and the user explicity asked for the creation of it
-    pub fn default() -> Self {
+    fn default() -> Self {
         Self {
             shows: Vec::new(),
             last_change: Utc::now(),
         }
     }
+}
 
+impl Shows {
     /// Add a new show from a url to the list of feeds
     pub async fn add<S>(&mut self, url: S) -> Result<(), FeedError>
     where
