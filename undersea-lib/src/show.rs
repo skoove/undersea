@@ -61,8 +61,33 @@ impl Show {
         })
     }
 
+    /// Time of the last time the feed was checked for new episodes and other changes.
+    pub fn last_check(&self) -> &DateTime<Utc> {
+        &self.last_checked
+    }
+
+    /// Returns the date of the last new episode uploaded to a shows feed. This does not
+    /// request the new date, to do that you need to update the feed manually.
+    pub fn last_upload(&self) -> &DateTime<Utc> {
+        &self.last_upload
+    }
+
+    /// Return the url of a show
+    pub fn url(&self) -> &str {
+        &self.url
+    }
+
     /// Returns the title of a show
     pub fn name(&self) -> &str {
         &self.name
+    }
+
+    /// Returns referances to all episodes added
+    pub fn episodes(&self) -> Vec<&Episode> {
+        let mut episode_refs = Vec::new();
+        for episode in &self.episodes {
+            episode_refs.push(episode);
+        }
+        episode_refs
     }
 }
