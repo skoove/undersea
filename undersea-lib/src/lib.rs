@@ -26,12 +26,24 @@ impl Shows {
         }
     }
 
-    // Add a new show from a url to the list of feeds
-    pub async fn add_show<S: Into<String> + Clone + IntoUrl>(
-        &mut self,
-        url: S,
-    ) -> Result<(), FeedError> {
+    /// Add a new show from a url to the list of feeds
+    pub async fn add<S>(&mut self, url: S) -> Result<(), FeedError>
+    where
+        S: IntoUrl + Clone + Into<String>,
+    {
         self.shows.push(Show::new(url).await?);
+        Ok(())
+    }
+
+    /// Add multiple shows from urls
+    pub async fn add_multiple<I>(&mut self, urls: I) -> Result<(), FeedError>
+    where
+        I: IntoIterator,
+        I::Item: IntoUrl + Clone + Into<String>,
+    {
+        for url in urls {
+            self.add(url).await?
+        }
         Ok(())
     }
 
@@ -68,13 +80,19 @@ mod tests {
     async fn add_single_from_url() {
         let mut shows = Shows::new();
 
-        shows.add_show(TESTING_URLS[0]).await.unwrap();
+        shows.add(TESTING_URLS[3]).await.expect("to add shows");
         assert_eq!(shows.shows.len(), 1);
+    }
 
-        shows.add_show(TESTING_URLS[1]).await.unwrap();
-        assert_eq!(shows.shows.len(), 2);
+    #[tokio::test]
+    async fn add_multiple() {
+        let mut shows = Shows::new();
 
-        shows.add_show(TESTING_URLS[2]).await.unwrap();
-        assert_eq!(shows.shows.len(), 3)
+        shows
+            .add_multiple(TESTING_URLS)
+            .await
+            .expect("to add shows");
+
+        assert_eq!(shows.shows.len(), TESTING_URLS.len())
     }
 }
