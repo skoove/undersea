@@ -19,7 +19,7 @@ pub struct Shows {
 impl Shows {
     /// Create a new [`Shows`] struct, this should only be done if there were none to
     /// read from file and the user explicity asked for the creation of it
-    pub fn new() -> Self {
+    pub fn default() -> Self {
         Self {
             shows: Vec::new(),
             last_change: Utc::now(),
@@ -80,7 +80,7 @@ mod tests {
 
     #[tokio::test]
     async fn add_single_from_url() {
-        let mut shows = Shows::new();
+        let mut shows = Shows::default();
 
         shows.add(TESTING_URLS[3]).await.expect("to add shows");
         assert_eq!(shows.shows.len(), 1);
@@ -88,7 +88,7 @@ mod tests {
 
     #[tokio::test]
     async fn add_multiple() {
-        let mut shows = Shows::new();
+        let mut shows = Shows::default();
 
         shows
             .add_multiple(TESTING_URLS)
