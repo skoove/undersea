@@ -4,7 +4,7 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-rss = "2"
-reqwest = "0"
-tokio = { version = "1" , features = ["rt", "rt-multi-thread", "macros"] }
-chrono = "0"
+rss = "2.0"
+reqwest = "0.12"
+tokio = { version = "1.44" , features = ["rt", "rt-multi-thread", "macros"] }
+chrono = "0.4"

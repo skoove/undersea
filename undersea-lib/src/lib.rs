@@ -1,7 +1,10 @@
 use chrono::{DateTime, Utc};
-use reqwest::get;
+use reqwest::{Client, get, header::CONTENT_LENGTH};
 use rss::Channel;
-use std::time::{self, Duration};
+use std::{
+    io::Cursor,
+    time::{self, Duration},
+};
 
 /// A podcast, contains the URL, name and a list of [`Episode`]s.
 #[derive(Debug)]
@@ -17,8 +20,8 @@ pub struct Episode {
     media_url: String,
     title: String,
     date: DateTime<Utc>,
-    duration: time::Duration,
-    resume_time: time::Duration,
+    duration: Option<time::Duration>,
+    resume_time: Option<time::Duration>,
     finished: bool,
 }
 
@@ -49,8 +52,8 @@ impl Feed {
                 title,
                 date: date.into(),
                 // TODO: Implement this
-                duration: Duration::from_secs(0),
-                resume_time: Duration::from_secs(0),
+                duration: None,
+                resume_time: None,
                 finished: false,
             });
         }
@@ -67,7 +70,7 @@ impl Feed {
 mod tests {
     use tokio::runtime::Runtime;
 
-    use crate::Feed;
+    use crate::*;
 
     #[test]
     fn test() {
@@ -79,6 +82,10 @@ mod tests {
             ))
             .unwrap();
 
-        println!("{:#?}", feed);
+        for (i, ep) in feed.episodes.iter().enumerate() {
+            println!("{}: {}", i, ep.title);
+            println!("   │{}", ep.date);
+            println!("   │{}", ep.media_url);
+        }
     }
 }
