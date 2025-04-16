@@ -11,6 +11,7 @@ pub struct Show {
     pub(crate) url: String,
     pub(crate) name: String,
     pub(crate) episodes: Vec<Episode>,
+    pub(crate) image: Option<rss::Image>,
     pub(crate) last_checked: DateTime<Utc>,
     pub(crate) last_upload: DateTime<Utc>,
 }
@@ -59,6 +60,7 @@ impl Show {
             url: url.into(),
             name: channel.title,
             episodes,
+            image: channel.image,
             last_checked: Utc::now(),
             last_upload: Utc::now(),
         })
@@ -87,6 +89,13 @@ impl Show {
     #[must_use]
     pub fn name(&self) -> &str {
         &self.name
+    }
+
+    /// Returns the image as [`rss::Image`], you will need to figure out your
+    /// own way of downloading and displaying the image
+    #[must_use]
+    pub fn image(&self) -> Option<&rss::Image> {
+        self.image.as_ref()
     }
 
     /// Returns referances to all episodes added
