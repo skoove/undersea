@@ -1,5 +1,5 @@
 # undersea
-Podcast player!
+Podcast player that rememebrs your subscriptions and where you are up to, across any device using small and easily parseable files.
 
 ## status
 2025-04-16 2027 AEST: Bad RSS reader, under active development!
