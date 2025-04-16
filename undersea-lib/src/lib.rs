@@ -59,11 +59,11 @@ impl Shows {
 
     /// Returns the name of all added shows
     #[must_use]
-    pub fn names(&self) -> Vec<&str> {
+    pub fn names(&self) -> Vec<String> {
         let mut names = Vec::new();
 
         for show in &self.shows {
-            names.push(show.name());
+            names.push(show.name().to_string());
         }
 
         names

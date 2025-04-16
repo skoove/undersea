@@ -1,14 +1,13 @@
-use std::ops::Index;
-
 use ratatui::{
     crossterm::event::{self, KeyCode, KeyEvent, KeyEventKind},
     prelude::*,
-    widgets::{Block, BorderType, List, ListState},
+    widgets::{Block, BorderType, ListState},
 };
+use std::ops::Index;
 use style::Stylize;
 use undersea_lib::Shows;
 
-use crate::widgets::episodes::EpisodesWidget;
+use crate::widgets::{episodes::EpisodesWidget, shows::ShowsWidget};
 
 pub struct App {
     shows: Shows,
@@ -37,11 +36,11 @@ impl App {
         Ok(())
     }
 
-    fn selected_show_title(&self) -> &str {
+    fn selected_show_title(&self) -> String {
         if let Some(selected_show_index) = self.selected_show.selected() {
-            self.shows.names().index(selected_show_index)
+            self.shows.names().index(selected_show_index).to_string()
         } else {
-            "..."
+            "...".to_string()
         }
     }
 
@@ -54,30 +53,25 @@ impl App {
         let sidebar = layout[0];
         let main = layout[1];
 
-        let block = Block::bordered()
+        let block_template = Block::bordered()
             .border_type(BorderType::Plain)
             .border_style(Style::new().blue());
 
-        let mut lines = Vec::new();
+        let block = block_template
+            .clone()
+            .title(Line::from(" shows ").bold().blue());
 
-        for show in self.shows.names() {
-            lines.push(Line::from(show).left_aligned());
-        }
-
-        let list = List::new(lines)
-            .block(block.clone().title(Line::from(" shows ").blue().bold()))
-            .highlight_symbol("> ")
-            .repeat_highlight_symbol(true)
-            .highlight_style(Style::new().yellow().bold());
-
-        frame.render_stateful_widget(list, sidebar, &mut self.selected_show);
+        let names = self.shows.names();
+        let shows_widget = ShowsWidget::new(&names);
+        frame.render_widget(&block, sidebar);
+        frame.render_stateful_widget(shows_widget, block.inner(sidebar), &mut self.selected_show);
 
         let episode_titles = self
             .shows
             .get_show(self.selected_show.selected().unwrap())
             .episode_titles();
 
-        let block = block
+        let block = block_template
             .clone()
             .title(Line::from(format!(" {} ", self.selected_show_title())).bold());
 
