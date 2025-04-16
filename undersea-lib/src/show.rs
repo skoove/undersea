@@ -53,6 +53,8 @@ impl Show {
             });
         }
 
+        episodes.sort_by_key(|ep| ep.date);
+
         Ok(Self {
             url: url.into(),
             name: channel.title,
