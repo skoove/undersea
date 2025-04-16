@@ -1,6 +1,7 @@
 use anyhow::Result;
 
 mod app;
+mod widgets;
 
 use crate::app::App;
 
