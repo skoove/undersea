@@ -68,6 +68,18 @@ impl Shows {
 
         names
     }
+
+    /// Get a show from its index in the list of shows
+    #[must_use]
+    pub fn get_show(&self, index: usize) -> &Show {
+        &self.shows[index]
+    }
+
+    /// Get a list of all shows
+    #[must_use]
+    pub fn shows(&self) -> Vec<&Show> {
+        self.shows.iter().collect()
+    }
 }
 
 #[cfg(test)]
