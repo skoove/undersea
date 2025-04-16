@@ -57,18 +57,6 @@ impl Shows {
         Ok(())
     }
 
-    /// Returns the name of all added shows
-    #[must_use]
-    pub fn names(&self) -> Vec<String> {
-        let mut names = Vec::new();
-
-        for show in &self.shows {
-            names.push(show.name().to_string());
-        }
-
-        names
-    }
-
     /// Get a show from its index in the list of shows
     #[must_use]
     pub fn get_show(&self, index: usize) -> &Show {

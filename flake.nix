@@ -18,16 +18,8 @@
   in {
     devShells.${system}.default = pkgs.mkShell {
       buildInputs = with pkgs; [
-        (fe_pkgs.stable.withComponents [
-          "cargo"
-          "clippy"
-          "rust-src"
-          "rustc"
-          "rustfmt"
-          "rust-analyzer"
-        ])
+        fe_pkgs.stable.toolchain
         # to compile for windows
-        (fe_pkgs.targets.i686-pc-windows-msvc.stable.rust-std)
         clang
 
         openssl # needed by reqwest
