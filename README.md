@@ -2,7 +2,7 @@
 Podcast player!
 
 ## status
-Non functional, under active development!
+2025-04-16 2027 AEST: Bad RSS reader, under active development!
 
 ## why i am making this
 I listen to *alot* of podcasts, and your only real optio:ns for cross platform listening is spotify, youtube, and apple podcasts. This is non ideal, you are locked into their platform, and there is not much felxibility.
