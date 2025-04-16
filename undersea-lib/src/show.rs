@@ -103,7 +103,7 @@ impl Show {
         let mut titles = Vec::new();
 
         for episode in self.episodes() {
-            titles.push(episode.title.clone());
+            titles.push(episode.title().to_string());
         }
 
         titles
