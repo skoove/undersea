@@ -1,13 +1,15 @@
 use ratatui::{
-    style::{Style, Stylize},
+    style::{Style, Styled, Stylize},
+    text::Line,
     widgets::{List, ListState, StatefulWidget},
 };
+use undersea_lib::Shows;
 
-pub struct ShowsWidget {
-    names: Vec<String>,
+pub struct ShowsWidget<'a> {
+    shows: &'a Shows,
 }
 
-impl StatefulWidget for ShowsWidget {
+impl StatefulWidget for ShowsWidget<'_> {
     type State = ListState;
 
     fn render(
@@ -16,7 +18,14 @@ impl StatefulWidget for ShowsWidget {
         buf: &mut ratatui::prelude::Buffer,
         state: &mut Self::State,
     ) {
-        let list = List::new(self.names)
+        let mut items = Vec::new();
+
+        for show in self.shows.shows() {
+            let line = Line::from(show.name()).white();
+            items.push(line);
+        }
+
+        let list = List::new(items)
             .highlight_symbol("> ")
             .repeat_highlight_symbol(true)
             .highlight_style(Style::new().yellow().bold())
@@ -27,10 +36,8 @@ impl StatefulWidget for ShowsWidget {
     }
 }
 
-impl ShowsWidget {
-    pub fn new(names: &[String]) -> Self {
-        Self {
-            names: names.into(),
-        }
+impl<'a> ShowsWidget<'a> {
+    pub fn new(shows: &'a Shows) -> ShowsWidget<'a> {
+        Self { shows }
     }
 }

@@ -52,11 +52,11 @@ impl App {
         Ok(())
     }
 
-    fn selected_show_title(&self) -> String {
+    fn selected_show_title(&self) -> &str {
         if let Some(selected_show_index) = self.selected_show.selected() {
-            self.shows.names().index(selected_show_index).to_string()
+            self.shows.shows()[selected_show_index].name()
         } else {
-            "...".to_string()
+            "..."
         }
     }
 
@@ -81,8 +81,7 @@ impl App {
                 .title(Line::from(" shows ").blue()),
         };
 
-        let names = self.shows.names();
-        let shows_widget = ShowsWidget::new(&names);
+        let shows_widget = ShowsWidget::new(&self.shows);
         frame.render_widget(&block, sidebar);
         frame.render_stateful_widget(shows_widget, block.inner(sidebar), &mut self.selected_show);
 
