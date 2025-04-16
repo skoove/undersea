@@ -1,8 +1,7 @@
 use ratatui::{
-    style::{self, Stylize},
+    style::{Style, Stylize},
     widgets::{List, ListState, StatefulWidget},
 };
-use style::Style;
 
 pub struct ShowsWidget {
     names: Vec<String>,
@@ -20,7 +19,9 @@ impl StatefulWidget for ShowsWidget {
         let list = List::new(self.names)
             .highlight_symbol("> ")
             .repeat_highlight_symbol(true)
-            .highlight_style(Style::new().yellow().bold());
+            .highlight_style(Style::new().yellow().bold())
+            .style(Style::new().white().not_bold())
+            .highlight_spacing(ratatui::widgets::HighlightSpacing::Always);
 
         StatefulWidget::render(list, area, buf, state);
     }
