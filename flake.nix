@@ -26,6 +26,8 @@
           "rustfmt"
           "rust-analyzer"
         ])
+        # to compile for windows
+        (fe_pkgs.targets.i686-pc-windows-msvc.stable.rust-std)
         clang
 
         openssl # needed by reqwest
