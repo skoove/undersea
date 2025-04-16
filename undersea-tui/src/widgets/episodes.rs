@@ -1,22 +1,24 @@
 use ratatui::prelude::*;
-use ratatui::widgets::List;
+use ratatui::widgets::{List, ListState};
 
 pub struct EpisodesWidget {
     titles: Vec<String>,
 }
 
-impl Widget for EpisodesWidget {
-    fn render(self, area: Rect, buf: &mut Buffer)
+impl StatefulWidget for EpisodesWidget {
+    type State = ListState;
+    fn render(self, area: Rect, buf: &mut Buffer, state: &mut ListState)
     where
         Self: Sized,
     {
-        let mut lines = Vec::new();
+        let list = List::new(self.titles)
+            .highlight_symbol("> ")
+            .repeat_highlight_symbol(true)
+            .highlight_style(Style::new().yellow().bold())
+            .style(Style::new().white().not_bold())
+            .highlight_spacing(ratatui::widgets::HighlightSpacing::Always);
 
-        for title in self.titles {
-            lines.push(Line::from(title).left_aligned());
-        }
-
-        Widget::render(List::new(lines), area, buf);
+        StatefulWidget::render(list, area, buf, state);
     }
 }
 
