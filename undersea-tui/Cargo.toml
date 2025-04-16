@@ -8,6 +8,7 @@ undersea-lib = { path = "../undersea-lib" }
 ratatui = "0.29"
 anyhow = "1.0"
 tokio = { version = "1.44" , features = ["rt", "rt-multi-thread", "macros"] }
+ratatui-image = "5.0"
 
 [lints]
 workspace = true
