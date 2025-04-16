@@ -29,6 +29,8 @@ impl Default for Shows {
 
 impl Shows {
     /// Add a new show from a url to the list of feeds
+    /// # Errors
+    /// Fails if the show cannot be added, most likely because of network issues
     pub async fn add<S>(&mut self, url: S) -> Result<(), FeedError>
     where
         S: IntoUrl + Clone + Into<String>,
@@ -39,23 +41,28 @@ impl Shows {
     }
 
     /// Add multiple shows from urls
+    /// # Errors
+    /// Will fail if any of the shows were unable to be added, this will not
+    /// continue adding shows if one fails, but shows before the one that
+    /// failed will stay added.
     pub async fn add_multiple<I>(&mut self, urls: I) -> Result<(), FeedError>
     where
         I: IntoIterator,
         I::Item: IntoUrl + Clone + Into<String>,
     {
         for url in urls {
-            self.add(url).await?
+            self.add(url).await?;
         }
         self.last_change = Utc::now();
         Ok(())
     }
 
     /// Returns the name of all added shows
+    #[must_use]
     pub fn names(&self) -> Vec<&str> {
         let mut names = Vec::new();
 
-        for show in self.shows.iter() {
+        for show in &self.shows {
             names.push(show.name());
         }
 
@@ -97,6 +104,6 @@ mod tests {
             .await
             .expect("to add shows");
 
-        assert_eq!(shows.shows.len(), TESTING_URLS.len())
+        assert_eq!(shows.shows.len(), TESTING_URLS.len());
     }
 }
