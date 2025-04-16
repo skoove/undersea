@@ -1,6 +1,5 @@
-use core::time;
-
 use chrono::{DateTime, Utc};
+use core::time;
 use reqwest::{IntoUrl, get};
 use rss::Channel;
 
@@ -96,5 +95,17 @@ impl Show {
             episode_refs.push(episode);
         }
         episode_refs
+    }
+
+    /// Returns the title of all the episodes of a show
+    #[must_use]
+    pub fn episode_titles(&self) -> Vec<String> {
+        let mut titles = Vec::new();
+
+        for episode in self.episodes() {
+            titles.push(episode.title.clone());
+        }
+
+        titles
     }
 }

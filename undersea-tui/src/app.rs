@@ -65,10 +65,16 @@ impl App {
 
         frame.render_stateful_widget(list, layout[0], &mut self.selected_show);
 
+        let episode_titles = self
+            .shows
+            .get_show(self.selected_show.selected().unwrap())
+            .episode_titles();
+
         let block = block
             .clone()
             .title(Line::from(format!(" {} ", self.selected_show_title())).bold());
         frame.render_widget(&block, layout[1]);
+        frame.render_widget(EpisodesWidget::new(&episode_titles), block.inner(layout[1]));
     }
 
     fn exit(&mut self) {
@@ -91,6 +97,33 @@ impl App {
             KeyCode::Char('k') => self.selected_show.select_previous(),
             KeyCode::Char('j') => self.selected_show.select_next(),
             _ => {}
+        }
+    }
+}
+
+struct EpisodesWidget {
+    titles: Vec<String>,
+}
+
+impl Widget for EpisodesWidget {
+    fn render(self, area: Rect, buf: &mut Buffer)
+    where
+        Self: Sized,
+    {
+        let mut lines = Vec::new();
+
+        for title in self.titles {
+            lines.push(Line::from(title).left_aligned());
+        }
+
+        Widget::render(List::new(lines), area, buf);
+    }
+}
+
+impl EpisodesWidget {
+    fn new(titles: &[String]) -> Self {
+        Self {
+            titles: titles.into(),
         }
     }
 }
