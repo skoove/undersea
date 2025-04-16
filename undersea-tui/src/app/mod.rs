@@ -8,6 +8,8 @@ use ratatui::{
 use style::Stylize;
 use undersea_lib::Shows;
 
+use crate::widgets::episodes::EpisodesWidget;
+
 pub struct App {
     shows: Shows,
     selected_show: ListState,
@@ -44,11 +46,16 @@ impl App {
     }
 
     fn draw(&mut self, frame: &mut Frame) {
-        let layout =
-            Layout::new(Direction::Horizontal, Constraint::from_fills([2, 5])).split(frame.area());
+        let layout = Layout::new(
+            Direction::Horizontal,
+            Constraint::from_percentages([25, 75]),
+        )
+        .split(frame.area());
+        let sidebar = layout[0];
+        let main = layout[1];
 
         let block = Block::bordered()
-            .border_type(BorderType::Rounded)
+            .border_type(BorderType::Plain)
             .border_style(Style::new().blue());
 
         let mut lines = Vec::new();
@@ -63,7 +70,7 @@ impl App {
             .repeat_highlight_symbol(true)
             .highlight_style(Style::new().yellow().bold());
 
-        frame.render_stateful_widget(list, layout[0], &mut self.selected_show);
+        frame.render_stateful_widget(list, sidebar, &mut self.selected_show);
 
         let episode_titles = self
             .shows
@@ -73,8 +80,9 @@ impl App {
         let block = block
             .clone()
             .title(Line::from(format!(" {} ", self.selected_show_title())).bold());
+
         frame.render_widget(&block, layout[1]);
-        frame.render_widget(EpisodesWidget::new(&episode_titles), block.inner(layout[1]));
+        frame.render_widget(EpisodesWidget::new(&episode_titles), block.inner(main));
     }
 
     fn exit(&mut self) {
@@ -97,33 +105,6 @@ impl App {
             KeyCode::Char('k') => self.selected_show.select_previous(),
             KeyCode::Char('j') => self.selected_show.select_next(),
             _ => {}
-        }
-    }
-}
-
-struct EpisodesWidget {
-    titles: Vec<String>,
-}
-
-impl Widget for EpisodesWidget {
-    fn render(self, area: Rect, buf: &mut Buffer)
-    where
-        Self: Sized,
-    {
-        let mut lines = Vec::new();
-
-        for title in self.titles {
-            lines.push(Line::from(title).left_aligned());
-        }
-
-        Widget::render(List::new(lines), area, buf);
-    }
-}
-
-impl EpisodesWidget {
-    fn new(titles: &[String]) -> Self {
-        Self {
-            titles: titles.into(),
         }
     }
 }
