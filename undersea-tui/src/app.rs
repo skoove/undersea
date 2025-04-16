@@ -1,22 +1,29 @@
+use std::ops::Index;
+
 use ratatui::{
     crossterm::event::{self, KeyCode, KeyEvent, KeyEventKind},
     prelude::*,
-    widgets::{Block, Paragraph},
+    widgets::{Block, BorderType, List, ListState},
 };
 use style::Stylize;
-use symbols::border;
 use undersea_lib::Shows;
 
 pub struct App {
     shows: Shows,
+    selected_show: ListState,
     exit: bool,
 }
 
 impl App {
-    pub fn new() -> Self {
+    pub async fn new() -> Self {
+        let mut shows = Shows::default();
+        shows.add_multiple(super::TESTING_URLS).await.unwrap();
+        let mut selected_show = ListState::default();
+        selected_show.select(Some(0));
         App {
-            shows: Shows::default(),
+            shows,
             exit: false,
+            selected_show,
         }
     }
 
@@ -28,8 +35,40 @@ impl App {
         Ok(())
     }
 
-    fn draw(&self, frame: &mut Frame) {
-        frame.render_widget(self, frame.area());
+    fn selected_show_title(&self) -> &str {
+        if let Some(selected_show_index) = self.selected_show.selected() {
+            self.shows.names().index(selected_show_index)
+        } else {
+            "..."
+        }
+    }
+
+    fn draw(&mut self, frame: &mut Frame) {
+        let layout =
+            Layout::new(Direction::Horizontal, Constraint::from_fills([2, 5])).split(frame.area());
+
+        let block = Block::bordered()
+            .border_type(BorderType::Rounded)
+            .border_style(Style::new().blue());
+
+        let mut lines = Vec::new();
+
+        for show in self.shows.names() {
+            lines.push(Line::from(show).left_aligned());
+        }
+
+        let list = List::new(lines)
+            .block(block.clone().title(Line::from(" shows ").blue().bold()))
+            .highlight_symbol("> ")
+            .repeat_highlight_symbol(true)
+            .highlight_style(Style::new().yellow().bold());
+
+        frame.render_stateful_widget(list, layout[0], &mut self.selected_show);
+
+        let block = block
+            .clone()
+            .title(Line::from(format!(" {} ", self.selected_show_title())).bold());
+        frame.render_widget(&block, layout[1]);
     }
 
     fn exit(&mut self) {
@@ -49,24 +88,9 @@ impl App {
     fn handle_key_event(&mut self, key_event: KeyEvent) {
         match key_event.code {
             KeyCode::Char('q') => self.exit(),
+            KeyCode::Char('k') => self.selected_show.select_previous(),
+            KeyCode::Char('j') => self.selected_show.select_next(),
             _ => {}
         }
-    }
-}
-
-impl Widget for &App {
-    fn render(self, area: Rect, buf: &mut Buffer)
-    where
-        Self: Sized,
-    {
-        let title = Line::from(" undersea ").bold().light_blue();
-        let block = Block::bordered()
-            .title(title.centered())
-            .border_set(border::THICK)
-            .border_style(Style::new().blue());
-
-        Paragraph::new("huhsdfi9uhsdu8i9fhb oiasduhf ou8isdhofgui8 sd")
-            .block(block)
-            .render(area, buf);
     }
 }
