@@ -1658,6 +1658,7 @@ dependencies = [
  "chrono",
  "reqwest",
  "rss",
+ "serde",
  "thiserror",
  "tokio",
 ]

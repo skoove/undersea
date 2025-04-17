@@ -4,11 +4,14 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-rss = "2.0"
+# If the first version number is not zero, just use it with no other numbers
+# Otherwise specify second number, but not the patch number.
+rss = "2"
 reqwest = "0.12"
-tokio = { version = "1.44" , features = ["rt", "rt-multi-thread", "macros"] }
+tokio = { version = "1" , features = ["rt", "rt-multi-thread", "macros"] }
 chrono = "0.4"
-thiserror = "2.0"
+thiserror = "2"
+serde = { version = "1", features = ["derive"] }
 
 [lints]
 workspace = true
