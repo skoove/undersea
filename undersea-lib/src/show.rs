@@ -108,15 +108,12 @@ impl Show {
         episode_refs
     }
 
-    /// Returns the title of all the episodes of a show
+    /// Returns the episode by its index in the list.
+    ///
+    /// # Errors
+    /// Returns [`None`] if the episode was not there.
     #[must_use]
-    pub fn episode_titles(&self) -> Vec<String> {
-        let mut titles = Vec::new();
-
-        for episode in self.episodes() {
-            titles.push(episode.title().to_string());
-        }
-
-        titles
+    pub fn episode_by_index(&self, index: usize) -> Option<&Episode> {
+        self.episodes.get(index)
     }
 }
