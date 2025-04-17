@@ -10,6 +10,7 @@ use crate::widgets::{episodes::EpisodesWidget, shows::ShowsWidget};
 
 pub struct App {
     shows: Shows,
+    selected_episode: Option<usize>,
     selection_state: SelectionState,
     show_list_state: ListState,
     episode_list_state: ListState,
@@ -34,6 +35,7 @@ impl App {
         App {
             shows,
             exit: false,
+            selected_episode: None,
             selection_state: SelectionState::Shows,
             show_list_state,
             episode_list_state,
@@ -63,9 +65,7 @@ impl App {
             SelectionState::Shows => Block::bordered()
                 .style(border_style)
                 .border_type(BorderType::Thick)
-                .title(Line::from(" shows ").blue().bold())
-                .title(Line::from(format!("{:?}", self.show_list_state.selected())))
-                .title(Line::from(format!("{:?}", self.show_list_state))),
+                .title(Line::from(" shows ").blue().bold()),
             SelectionState::Episodes => Block::bordered()
                 .style(border_style)
                 .title(Line::from(" shows ").blue()),
@@ -105,7 +105,7 @@ impl App {
             .and_then(|index| self.shows.get_show_by_index(index))
         {
             let episodes = show.episodes();
-            let episodes_widget = EpisodesWidget::new(&episodes);
+            let episodes_widget = EpisodesWidget::new(&episodes, self.selected_episode);
             frame.render_stateful_widget(
                 episodes_widget,
                 block.inner(main),
@@ -115,6 +115,10 @@ impl App {
             let no_episode_found = Line::from("no episodes!").bold().red();
             frame.render_widget(no_episode_found, block.inner(main));
         }
+    }
+
+    fn select_hovered_episode(&mut self) {
+        self.selected_episode = self.episode_list_state.selected();
     }
 
     fn exit(&mut self) {
@@ -157,6 +161,7 @@ impl App {
             match key_event.code {
                 KeyCode::Char('j') => self.episode_list_state.select_next(),
                 KeyCode::Char('k') => self.episode_list_state.select_previous(),
+                KeyCode::Enter => self.select_hovered_episode(),
                 _ => {}
             }
         }
