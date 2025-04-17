@@ -5,6 +5,16 @@ use undersea_lib::Episode;
 
 pub struct EpisodesWidget<'a> {
     episodes: Vec<&'a Episode>,
+    selected_episode: Option<usize>,
+}
+
+impl<'a> EpisodesWidget<'a> {
+    pub fn new(episodes: &'a [&Episode], selected_episode: Option<usize>) -> Self {
+        Self {
+            episodes: episodes.to_vec(),
+            selected_episode,
+        }
+    }
 }
 
 impl StatefulWidget for EpisodesWidget<'_> {
@@ -14,7 +24,7 @@ impl StatefulWidget for EpisodesWidget<'_> {
         Self: Sized,
     {
         let mut items = Vec::new();
-        for episode in self.episodes {
+        for (id, episode) in self.episodes.iter().enumerate() {
             let date = episode.date().format("%Y-%m-%d %H:%M");
             let date = date.to_string();
 
@@ -26,8 +36,14 @@ impl StatefulWidget for EpisodesWidget<'_> {
 
             let seperator = " ".repeat(distance as usize);
 
+            let title_style = if Some(id) == self.selected_episode {
+                Style::new().green().bold()
+            } else {
+                Style::new().white().not_bold()
+            };
+
             let spans = [
-                episode.title().to_string().white(),
+                Span::from(episode.title()).style(title_style),
                 Span::from(seperator).red(),
                 date.gray(),
             ];
@@ -43,13 +59,5 @@ impl StatefulWidget for EpisodesWidget<'_> {
             .highlight_spacing(ratatui::widgets::HighlightSpacing::Always);
 
         StatefulWidget::render(list, area, buf, state);
-    }
-}
-
-impl<'a> EpisodesWidget<'a> {
-    pub fn new(episodes: &'a [&Episode]) -> Self {
-        Self {
-            episodes: episodes.to_vec(),
-        }
     }
 }
