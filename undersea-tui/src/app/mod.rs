@@ -3,19 +3,17 @@ use ratatui::{
     prelude::*,
     widgets::{Block, BorderType, ListState},
 };
-use std::ops::Index;
 use style::Stylize;
-use undersea_lib::{Episode, Shows};
+use undersea_lib::Shows;
 
 use crate::widgets::{episodes::EpisodesWidget, shows::ShowsWidget};
 
 pub struct App {
     shows: Shows,
     selection_state: SelectionState,
-    selected_show: ListState,
-    highlighted_episode: ListState,
+    show_list_state: ListState,
+    episode_list_state: ListState,
     exit: bool,
-    selected_episode: Option<usize>,
 }
 
 #[derive(PartialEq, Eq)]
@@ -29,18 +27,16 @@ impl App {
         let mut shows = Shows::default();
         shows.add_multiple(super::TESTING_URLS).await.unwrap();
 
-        let mut selected_show = ListState::default();
-        selected_show.select(Some(0));
+        let show_list_state = ListState::default().with_selected(Some(0));
 
-        let highlighted_episode = ListState::default();
+        let episode_list_state = ListState::default();
 
         App {
             shows,
             exit: false,
             selection_state: SelectionState::Shows,
-            selected_show,
-            highlighted_episode,
-            selected_episode: None,
+            show_list_state,
+            episode_list_state,
         }
     }
 
@@ -50,14 +46,6 @@ impl App {
             self.handle_events()?;
         }
         Ok(())
-    }
-
-    fn selected_show_title(&self) -> &str {
-        if let Some(selected_show_index) = self.selected_show.selected() {
-            self.shows.shows()[selected_show_index].name()
-        } else {
-            "..."
-        }
     }
 
     fn draw(&mut self, frame: &mut Frame) {
@@ -75,7 +63,9 @@ impl App {
             SelectionState::Shows => Block::bordered()
                 .style(border_style)
                 .border_type(BorderType::Thick)
-                .title(Line::from(" shows ").blue().bold()),
+                .title(Line::from(" shows ").blue().bold())
+                .title(Line::from(format!("{:?}", self.show_list_state.selected())))
+                .title(Line::from(format!("{:?}", self.show_list_state))),
             SelectionState::Episodes => Block::bordered()
                 .style(border_style)
                 .title(Line::from(" shows ").blue()),
@@ -83,36 +73,48 @@ impl App {
 
         let shows_widget = ShowsWidget::new(&self.shows);
         frame.render_widget(&block, sidebar);
-        frame.render_stateful_widget(shows_widget, block.inner(sidebar), &mut self.selected_show);
+        frame.render_stateful_widget(
+            shows_widget,
+            block.inner(sidebar),
+            &mut self.show_list_state,
+        );
 
         // Main: episodes list
+        let block_title = self
+            .show_list_state
+            .selected()
+            .and_then(|index| self.shows.get_show_by_index(index))
+            .map_or(" ... ", |show| show.name());
+
         let block = match self.selection_state {
             SelectionState::Shows => Block::bordered()
                 .style(border_style)
-                .title(Line::from(self.selected_show_title()).blue()),
+                .title(Line::from(block_title).blue()),
             SelectionState::Episodes => Block::bordered()
                 .style(border_style)
                 .border_type(BorderType::Thick)
-                .title(
-                    Line::from(format!(" {} ", self.selected_show_title()))
-                        .blue()
-                        .bold(),
-                ),
+                .title(Line::from(format!(" {block_title} ")).blue().bold()),
         };
 
-        let episode_titles = self
-            .shows
-            .get_show(self.selected_show.selected().unwrap())
-            .episode_titles();
+        // render block around the episodes widget
+        frame.render_widget(&block, main);
 
-        let episodes_widget = EpisodesWidget::new(&episode_titles);
-
-        frame.render_widget(&block, layout[1]);
-        frame.render_stateful_widget(
-            episodes_widget,
-            block.inner(main),
-            &mut self.highlighted_episode,
-        );
+        if let Some(show) = self
+            .show_list_state
+            .selected()
+            .and_then(|index| self.shows.get_show_by_index(index))
+        {
+            let episodes = show.episodes();
+            let episodes_widget = EpisodesWidget::new(&episodes);
+            frame.render_stateful_widget(
+                episodes_widget,
+                block.inner(main),
+                &mut self.episode_list_state,
+            );
+        } else {
+            let no_episode_found = Line::from("no episodes!").bold().red();
+            frame.render_widget(no_episode_found, block.inner(main));
+        }
     }
 
     fn exit(&mut self) {
@@ -134,27 +136,27 @@ impl App {
             KeyCode::Char('q') => self.exit(),
             KeyCode::Char('h') => {
                 self.selection_state = SelectionState::Shows;
-                self.highlighted_episode.select(None);
+                self.episode_list_state.select(None);
             }
             KeyCode::Char('l') => {
                 self.selection_state = SelectionState::Episodes;
-                self.highlighted_episode.select(Some(0));
+                self.episode_list_state.select(Some(0));
             }
             _ => {}
         }
 
         if self.selection_state == SelectionState::Shows {
             match key_event.code {
-                KeyCode::Char('j') => self.selected_show.select_next(),
-                KeyCode::Char('k') => self.selected_show.select_previous(),
+                KeyCode::Char('j') => self.show_list_state.select_next(),
+                KeyCode::Char('k') => self.show_list_state.select_previous(),
                 _ => {}
             }
         }
 
         if self.selection_state == SelectionState::Episodes {
             match key_event.code {
-                KeyCode::Char('j') => self.highlighted_episode.select_next(),
-                KeyCode::Char('k') => self.highlighted_episode.select_previous(),
+                KeyCode::Char('j') => self.episode_list_state.select_next(),
+                KeyCode::Char('k') => self.episode_list_state.select_previous(),
                 _ => {}
             }
         }

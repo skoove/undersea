@@ -58,9 +58,12 @@ impl Shows {
     }
 
     /// Get a show from its index in the list of shows
+    ///
+    /// # Errors
+    /// Returns [`None`] if the show is not there
     #[must_use]
-    pub fn get_show(&self, index: usize) -> &Show {
-        &self.shows[index]
+    pub fn get_show_by_index(&self, index: usize) -> Option<&Show> {
+        self.shows.get(index)
     }
 
     /// Get a list of all shows
