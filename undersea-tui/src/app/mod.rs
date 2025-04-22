@@ -80,6 +80,31 @@ impl App {
         );
 
         // Main: episodes list
+        let (main, footer) = if self.selected_episode.is_some() {
+            let layout = Layout::default()
+                .direction(Direction::Vertical)
+                .constraints([Constraint::Min(0), Constraint::Length(5)])
+                .split(main);
+            (layout[0], layout[1])
+        } else {
+            (main, main)
+        };
+
+        if let Some(selected_episode_id) = self.selected_episode {
+            let block_title = self
+                .shows
+                .get_show_by_index(self.show_list_state.selected().unwrap())
+                .unwrap()
+                .episode_by_index(selected_episode_id)
+                .unwrap()
+                .title();
+            let block = Block::bordered()
+                .title(Line::from(block_title).blue().bold())
+                .border_style(Style::new().blue());
+
+            frame.render_widget(block, footer);
+        };
+
         let block_title = self
             .show_list_state
             .selected()
