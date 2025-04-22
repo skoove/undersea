@@ -28,6 +28,10 @@ impl StatefulWidget for EpisodesWidget<'_> {
             let date = episode.date().format("%Y-%m-%d %H:%M");
             let date = date.to_string();
 
+            // Make the time of upload be allinged to the left
+            // (ep length + date length + 3) - total width
+            // the plus 3 is to account for the ' > ' that is insertde before
+            // the highlighted episode
             let distance = area.width.saturating_sub(
                 (3 + episode.title().chars().count() + date.chars().count())
                     .try_into()
