@@ -176,8 +176,14 @@ impl App {
 
         if self.selection_state == SelectionState::Shows {
             match key_event.code {
-                KeyCode::Char('j') => self.show_list_state.select_next(),
-                KeyCode::Char('k') => self.show_list_state.select_previous(),
+                KeyCode::Char('j') => {
+                    self.show_list_state.select_next();
+                    self.selected_episode = None
+                }
+                KeyCode::Char('k') => {
+                    self.show_list_state.select_previous();
+                    self.selected_episode = None
+                }
                 _ => {}
             }
         }
