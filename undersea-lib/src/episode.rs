@@ -6,6 +6,7 @@ use std::time;
 pub struct Episode {
     pub(crate) media_url: String,
     pub(crate) title: String,
+    pub(crate) description: Option<String>,
     pub(crate) date: DateTime<Utc>,
     pub(crate) duration: Option<time::Duration>,
     pub(crate) resume_time: time::Duration,
@@ -23,6 +24,15 @@ impl Episode {
     #[must_use]
     pub fn title(&self) -> &str {
         &self.title
+    }
+
+    /// Returns the description (show notes) of an episode as html
+    ///
+    /// # Erors
+    /// Returns None if there was no attached description
+    #[must_use]
+    pub fn descrpition(&self) -> Option<&str> {
+        self.description.as_deref()
     }
 
     /// Returns the [`DateTime`] of the episodes upload, in UTC.

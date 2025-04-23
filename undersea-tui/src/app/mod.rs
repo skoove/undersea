@@ -6,7 +6,9 @@ use ratatui::{
 use style::Stylize;
 use undersea_lib::Shows;
 
-use crate::widgets::{episodes::EpisodesWidget, shows::ShowsWidget};
+use crate::widgets::{
+    episode_info::EpisodeInfoWidget, episodes::EpisodesWidget, shows::ShowsWidget,
+};
 
 pub struct App {
     shows: Shows,
@@ -80,10 +82,11 @@ impl App {
         );
 
         // Main: episodes list
+        // if an episode is selected split off a footer
         let (main, footer) = if self.selected_episode.is_some() {
             let layout = Layout::default()
                 .direction(Direction::Vertical)
-                .constraints([Constraint::Min(0), Constraint::Length(5)])
+                .constraints([Constraint::Min(5), Constraint::Percentage(25)])
                 .split(main);
             (layout[0], layout[1])
         } else {
@@ -91,17 +94,22 @@ impl App {
         };
 
         if let Some(selected_episode_id) = self.selected_episode {
-            let block_title = self
+            let episode = self
                 .shows
                 .get_show_by_index(self.show_list_state.selected().unwrap())
                 .unwrap()
                 .episode_by_index(selected_episode_id)
-                .unwrap()
-                .title();
+                .unwrap();
+
+            let block_title = episode.title();
+
             let block = Block::bordered()
                 .title(Line::from(block_title).blue().bold())
                 .border_style(Style::new().blue());
 
+            let widget = EpisodeInfoWidget::new(episode);
+
+            frame.render_widget(widget, block.inner(footer));
             frame.render_widget(block, footer);
         };
 
