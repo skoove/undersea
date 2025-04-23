@@ -43,9 +43,12 @@ impl Show {
                 url_copy.into()
             };
 
+            let description = item.content().map(|i| i.to_string());
+
             episodes.push(Episode {
                 media_url,
                 title,
+                description,
                 date: date.into(),
                 // TODO: Implement this
                 duration: None,
